@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: uptimer-db
+    environment:
+      POSTGRES_USER: uptimer
+      POSTGRES_PASSWORD: uptimer_password
+      POSTGRES_DB: uptimer
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - uptimer-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uptimer-backend
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://uptimer:uptimer_password@db:5432/uptimer?sslmode=disable
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - FRONTEND_URL=https://uptimer.tsew.com
+      - JWT_SECRET=change-me-in-production-12345678
+      - MONITOR_WORKERS=10
+    networks:
+      - uptimer-network
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: uptimer-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+    networks:
+      - uptimer-network
+    restart: always
+
+networks:
+  uptimer-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

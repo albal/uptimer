@@ -1,0 +1,21 @@
+[Unit]
+Description=Uptimer Monitoring Platform
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=uptimer
+Group=uptimer
+WorkingDirectory=/opt/uptimer
+ExecStart=/opt/uptimer/uptimer
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=uptimer
+
+# Environment variables should be loaded from a file
+EnvironmentFile=/opt/uptimer/.env
+
+[Install]
+WantedBy=multi-user.target

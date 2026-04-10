@@ -1,0 +1,43 @@
+uptimer.tsew.com {
+    root * /usr/share/caddy
+    file_server
+
+    # Handle SPA routing (try files, then fallback to index.html)
+    try_files {path} /index.html
+
+    # Proxy API requests to the backend
+    handle /api/* {
+        reverse_proxy backend:8080
+    }
+
+    # Proxy Health check
+    # Nginx config had /health as a special proxy
+    handle /health {
+        reverse_proxy backend:8080
+    }
+
+    # Proxy Heartbeat (if not under /api)
+    # Backend router.go line 81: r.Get("/api/heartbeat/{token}", monitorHandler.Heartbeat)
+    # So handle /api/* covers it.
+
+    # Compression
+    encode gzip zstd
+
+    # Security Headers
+    header {
+        # disable FLoC tracking
+        Permissions-Policy interest-cohort=()
+        # enable HSTS
+        Strict-Transport-Security max-age=31536000;
+        # disable clients from sniffing the media type
+        X-Content-Type-Options nosniff
+        # clickjacking protection
+        X-Frame-Options DENY
+        # keep referrer data off of HTTP connections
+        Referrer-Policy no-referrer-when-downgrade
+    }
+
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
