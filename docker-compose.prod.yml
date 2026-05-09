@@ -33,7 +33,7 @@ services:
     image: ghcr.io/albal/uptimer-frontend:${IMAGE_TAG:-latest}
     container_name: uptimer-frontend
     ports:
-      - "8080:80"
+      - "8081:80"
       - "8443:443"
     volumes:
       - caddy_data:/data
