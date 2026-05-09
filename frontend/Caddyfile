@@ -1,3 +1,7 @@
+{
+    auto_https disable_redirects
+}
+
 uptimer.tsew.com {
     root * /usr/share/caddy
     file_server
@@ -27,8 +31,6 @@ uptimer.tsew.com {
     header {
         # disable FLoC tracking
         Permissions-Policy interest-cohort=()
-        # enable HSTS
-        Strict-Transport-Security max-age=31536000;
         # disable clients from sniffing the media type
         X-Content-Type-Options nosniff
         # clickjacking protection
